@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -19,7 +20,7 @@ var (
 
 func init() {
 
-	flag.StringVar(&Token, "t", "", "Bot Token")
+	flag.StringVar(&Token, "t", "token", "Bot Token")
 	flag.Parse()
 }
 
@@ -87,17 +88,30 @@ func checkCat(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Answer (or not) the user
 	if contains(msg, recv) {
 		fmt.Print(
+			"\033[33m",
+			time.Now().Format("2006-01-02 15:04:05"),
+			" ",
+			"\033[34m",
 			m.Author.Username,
 			"#",
 			m.Author.Discriminator,
+			"\033[0m",
 			" want to know if the cat is alive.",
 		)
 		// Check if the cat is alive
 		if isCatAlive() {
 			s.ChannelMessageSend(m.ChannelID, "Meow !")
-			fmt.Println(" And he is !")
+			fmt.Println(
+				"\033[32m",
+				"And he is !",
+				"\033[0m",
+			)
 		} else {
-			fmt.Println(" Seems not...")
+			fmt.Println(
+				"\033[31m",
+				"Seems not...",
+				"\033[0m",
+			)
 		}
 	}
 }
