@@ -1,8 +1,9 @@
 package main
 
 import (
-	"flag"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"os"
 	"os/signal"
@@ -13,23 +14,30 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// Variables used for command line parameters
-var (
-	Token string
-)
-
-func init() {
-
-	flag.StringVar(&Token, "t", "token", "Bot Token")
-	flag.Parse()
-}
-
 func main() {
 
-	// Create a new Discord session using the provided bot token.
-	bot, err := discordgo.New("Bot " + Token)
+	// Read token in the `secrets.json` file
+	secretFile, err := ioutil.ReadFile("./secrets.json")
 	if err != nil {
-		fmt.Println("error creating Discord session,", err)
+		fmt.Println("Error while reading secrets:", err)
+	}
+
+	type Secrets struct {
+		DISCORD string
+	}
+
+	var secrets Secrets
+
+	// Parse json content
+	err = json.Unmarshal(secretFile, &secrets)
+	if err != nil {
+		fmt.Println("Error while parsing secrets:", err)
+	}
+
+	// Create a new Discord session using the provided bot token.
+	bot, err := discordgo.New("Bot " + secrets.DISCORD)
+	if err != nil {
+		fmt.Println("Error while creating the Discord session,", err)
 		return
 	}
 
@@ -39,7 +47,7 @@ func main() {
 	// Open a websocket connection to Discord and begin listening.
 	err = bot.Open()
 	if err != nil {
-		fmt.Println("error opening connection,", err)
+		fmt.Println("Error while opening connection,", err)
 		return
 	}
 
